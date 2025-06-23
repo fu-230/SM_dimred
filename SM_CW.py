@@ -146,15 +146,29 @@ def CW(mu3,T):
             return CWvev23/T
         else:
             return CWvev21/T
+def CWrun(T):
+    #run from mu30 to mu3=T
+    mu30=2.13*T #3.*np.exp(-0.348725)*T
+    CWworun=CW(mu30,T)
+    #In the second line, we normalize phi following [hep-ph/9508379 (141)]
+    return CWworun+3.*dimred.g3(T)**2/(16.*np.pi**2*T)*np.log(T/mu30)\
+        #*(1-(1/(16.*np.pi**2))*(-(9./4.)*dimred.g4(T)**2*dimred.Lb()+3.*param.yt2[param.Ttoi(dimred.r*T)]*dimred.Lf()))
 
+data = [CWrun(T) for T in np.arange(90, 154)]
+np.savez('data.npz', x_data=np.arange(90, 154), y_data=data)
+
+#"""
 #plot
 plt.figure(figsize=(10,6))
-T=np.arange(80,154,1)
-plt.plot(T,[CW(3.*np.exp(-0.348725)*T[i],T[i]) for i in range(len(T))],label=r'$v^2_{CW}/2T$')
+T=np.arange(140,154,1)
+plt.plot(T,[CWrun(T[i]) for i in range(len(T))],label=r'$v^2_{CW}/2T^2$')
+plt.plot(T,[0.23**2*(162-T[i])/2. for i in range(len(T))], label='lattice extrapolation')
 plt.xlabel(r'$T$ [GeV]')
-plt.ylabel(r'$v^2_{CW}/2T$')
-plt.title('Coleman--Weinberg method')
+plt.ylabel(r'$v^2_{CW}/2T^2$')
+plt.title(r'Coleman--Weinberg method, $\mu_T=0.6T$, $\mu_{3,0}=2.13T\,\to\,\mu_3=T$')
 plt.grid(True)
 plt.legend()
 plt.tight_layout()
+plt.savefig('CW.pdf')
 plt.show()
+#"""
